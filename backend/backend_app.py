@@ -43,6 +43,20 @@ def handle_posts():
 
         return jsonify(new_post), 201
     else:
+        sort = request.args.get('sort')
+        direction = request.args.get('direction')
+
+        if sort in ["title", "content"] and (not direction or direction in ["asc", "desc"]):
+            sorted_list = sorted(POSTS, key=lambda post: post[sort].lower(), reverse=(direction == "desc"))
+            return jsonify(sorted_list)
+        elif sort and sort not in ["title", "content"]:
+            #sort is not None but invalid
+            return jsonify({"error": "Invalid parameter: sort"}), 400
+        elif direction and direction not in ["asc", "desc"]:
+            # direction is not None but invalid
+            return jsonify({"error": "Invalid parameter: direction"}), 400
+
+
         #GET request
         return jsonify(POSTS)
 
