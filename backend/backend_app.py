@@ -76,8 +76,20 @@ def handle_post_id(post_id):
         return jsonify({"error": f"A post with the id {post_id} doesn't exist"}), 404
 
 
+@app.route('/api/posts/search', methods=['GET'])
+def handle_posts_search():
+    title = request.args.get('title')
+    content = request.args.get('content')
 
+    results= []
+    if not title and not content:
+        return jsonify(results), 200
 
+    for post in POSTS:
+        if (not title or title in post["title"]) and (not content or content in post["content"]):
+            results.append(post)
+
+    return jsonify(results), 200
 
 
 @app.errorhandler(404)
