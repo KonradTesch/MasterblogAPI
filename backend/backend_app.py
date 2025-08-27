@@ -9,6 +9,13 @@ POSTS = [
     {"id": 2, "title": "Second post", "content": "This is the second post."},
 ]
 
+def get_post_by_id(post_id):
+    for post in POSTS:
+        if post["id"] == post_id:
+            return post
+
+    return None
+
 
 def validate_post_data(post_data):
     """
@@ -20,9 +27,8 @@ def validate_post_data(post_data):
 
 
 @app.route('/api/posts', methods=['GET', 'POST'])
-def get_posts():
+def handle_posts():
     if request.method == 'POST':
-        print(f" type: {request.content_type}")
         if request.content_type != 'application/json':
             return jsonify({"error": "Missing or wrong content type"}), 415
 
@@ -41,17 +47,36 @@ def get_posts():
         return jsonify(POSTS)
 
 
-@app.route('/api/posts/<int:id_to_delete>', methods=['DELETE'])
-def delete_post(id_to_delete):
+@app.route('/api/posts/<int:post_id>', methods=['DELETE', 'PUT'])
+def handle_post_id(post_id):
     if request.method == 'DELETE':
-        for post in POSTS:
-            if post["id"] == id_to_delete:
-                print(f"remove {post}")
-                POSTS.remove(post)
-                return jsonify({"mesage": f"Post with id {id_to_delete} has been deleted successfully."}), 200
-        return jsonify({"error": f"A post with the id {id_to_delete} doesn't exist"}), 404
+        post_to_delete = get_post_by_id(post_id)
+        if post_to_delete:
+            return jsonify({"message": f"Post with id {post_id} has been deleted successfully."}), 200
 
-    return None
+        #No post was found
+        return jsonify({"error": f"A post with the id {post_id} doesn't exist"}), 404
+    else:
+        'PUT request'
+        if request.content_type != 'application/json':
+            return jsonify({"error": "Missing or wrong content type"}), 415
+
+        post_to_update = get_post_by_id(post_id)
+        updated_post = request.get_json()
+
+        for post in POSTS:
+            if post["id"] == post_id:
+                if updated_post.get("title"):
+                    post["title"] = updated_post["title"]
+                if updated_post.get("content"):
+                    post["content"] = updated_post["content"]
+                return jsonify(post), 200
+
+        # No post was found
+        return jsonify({"error": f"A post with the id {post_id} doesn't exist"}), 404
+
+
+
 
 
 
