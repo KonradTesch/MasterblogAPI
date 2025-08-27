@@ -41,6 +41,20 @@ def get_posts():
         return jsonify(POSTS)
 
 
+@app.route('/api/posts/<int:id_to_delete>', methods=['DELETE'])
+def delete_post(id_to_delete):
+    if request.method == 'DELETE':
+        for post in POSTS:
+            if post["id"] == id_to_delete:
+                print(f"remove {post}")
+                POSTS.remove(post)
+                return jsonify({"mesage": f"Post with id {id_to_delete} has been deleted successfully."}), 200
+        return jsonify({"error": f"A post with the id {id_to_delete} doesn't exist"}), 404
+
+    return None
+
+
+
 @app.errorhandler(404)
 def not_found_error(error):
     return jsonify({"error": "Not Found"}), 404
