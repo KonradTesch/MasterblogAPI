@@ -1,3 +1,11 @@
+"""
+Flask Blog API Backend
+
+A simple REST API for blog posts with CRUD operations.
+Supports creating, reading, updating and deleting blog posts
+as well as search and sorting functionality.
+"""
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
@@ -10,6 +18,11 @@ POSTS = [
 ]
 
 def get_post_by_id(post_id):
+    """
+    Finds a blog post by its ID
+    :param post_id: The ID of the post to find
+    :return: The found post as dictionary or None if not found
+    """
     for post in POSTS:
         if post["id"] == post_id:
             return post
@@ -19,15 +32,19 @@ def get_post_by_id(post_id):
 
 def validate_post_data(post_data):
     """
-    Checks if the post has all required keys and valid values and not more.
-    :param post_data:
-    :return:
+    Validates if post data contains all required fields with valid values
+    :param post_data: The post data dictionary to validate
+    :return: True if data is valid, False otherwise
     """
     return post_data.get("title") and post_data.get("content") and len(post_data.keys()) == 3
 
 
 @app.route('/api/posts', methods=['GET', 'POST'])
 def handle_posts():
+    """
+    Handles GET and POST requests for blog posts
+    :return: JSON response with posts data or error message
+    """
     if request.method == 'POST':
         if request.content_type != 'application/json':
             return jsonify({"error": "Missing or wrong content type"}), 415
@@ -63,6 +80,11 @@ def handle_posts():
 
 @app.route('/api/posts/<int:post_id>', methods=['DELETE', 'PUT'])
 def handle_post_id(post_id):
+    """
+    Handles DELETE and PUT requests for individual blog posts
+    :param post_id: The ID of the post to delete or update
+    :return: JSON response with success message, updated post data, or error message
+    """
     if request.method == 'DELETE':
         post_to_delete = get_post_by_id(post_id)
         if post_to_delete:
@@ -92,6 +114,10 @@ def handle_post_id(post_id):
 
 @app.route('/api/posts/search', methods=['GET'])
 def handle_posts_search():
+    """
+    Searches for blog posts based on title and/or content
+    :return: JSON array with matching posts
+    """
     title = request.args.get('title')
     content = request.args.get('content')
 
@@ -108,10 +134,20 @@ def handle_posts_search():
 
 @app.errorhandler(404)
 def not_found_error(error):
+    """
+    Error handler for 404 Not Found errors
+    :param error: The error object
+    :return: JSON error message with HTTP 404 status
+    """
     return jsonify({"error": "Not Found"}), 404
 
 @app.errorhandler(405)
 def method_not_allowed_error(error):
+    """
+    Error handler for 405 Method Not Allowed errors
+    :param error: The error object
+    :return: JSON error message with HTTP 405 status
+    """
     return jsonify({"error": "Method Not Allowed"}), 405
 
 if __name__ == '__main__':
