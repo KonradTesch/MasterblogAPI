@@ -88,6 +88,7 @@ def handle_post_id(post_id):
     if request.method == 'DELETE':
         post_to_delete = get_post_by_id(post_id)
         if post_to_delete:
+            POSTS.remove(post_to_delete)
             return jsonify({"message": f"Post with id {post_id} has been deleted successfully."}), 200
 
         #No post was found
